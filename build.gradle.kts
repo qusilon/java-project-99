@@ -1,8 +1,10 @@
 plugins {
 	application
 	java
+	checkstyle
 	id("org.springframework.boot") version "3.5.6"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.sonarqube") version "7.0.0.6105"
 }
 
 group = "hexlet.code"
@@ -32,4 +34,11 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+sonar {
+	properties {
+		property("sonar.projectKey", "qusilon_java-project-99")
+		property("sonar.organization", "qusilon")
+	}
 }
