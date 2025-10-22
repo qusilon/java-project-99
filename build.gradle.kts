@@ -2,6 +2,7 @@ plugins {
 	application
 	java
 	checkstyle
+	jacoco
 	id("org.springframework.boot") version "3.5.6"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.sonarqube") version "7.0.0.6105"
@@ -34,6 +35,12 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required.set(true)
+	}
 }
 
 sonar {
