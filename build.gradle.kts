@@ -32,9 +32,18 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
+	implementation("net.datafaker:datafaker:2.0.2")
+	implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+	implementation("org.mapstruct:mapstruct:1.6.3")
+	implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testImplementation("org.instancio:instancio-junit:5.5.1")
+	testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
 
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
