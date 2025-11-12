@@ -40,7 +40,7 @@ public class UserService {
 
     public UserDTO createUser(UserCreateDTO userCreateDTO) {
         User user = userMapper.map(userCreateDTO);
-        String password = passwordEncoder.encode(user.getPasswordDigest());
+        String password = passwordEncoder.encode(user.getPassword());
         user.setPasswordDigest(password);
         userRepository.save(user);
         return userMapper.map(user);

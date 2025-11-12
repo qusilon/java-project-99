@@ -16,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,14 +28,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
     static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static final String ADMIN_EMAIL = "hexlet@example.com";
 
     @Autowired
     private MockMvc mockMvc;
@@ -50,10 +54,13 @@ public class UserControllerTest {
     @Autowired
     private ModelGenerator modelGenerator;
 
+    private JwtRequestPostProcessor token;
+
     private User testUser;
 
     @BeforeEach
     public void setUp() {
+        token = jwt().jwt(builder -> builder.subject(ADMIN_EMAIL));
         testUser = Instancio.of(modelGenerator.getUserModel())
                 .create();
         userRepository.save(testUser);
@@ -66,7 +73,7 @@ public class UserControllerTest {
 
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/users"))
+        var result = mockMvc.perform(get("/api/users").with(token))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -81,7 +88,7 @@ public class UserControllerTest {
 
     @Test
     public void testShow() throws Exception {
-        var result = mockMvc.perform(get("/api/users/" + testUser.getId()))
+        var result = mockMvc.perform(get("/api/users/" + testUser.getId()).with(token))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -103,7 +110,7 @@ public class UserControllerTest {
     public void testCreate() throws Exception {
         var data = Instancio.of(modelGenerator.getUserCreateModel()).create();
 
-        mockMvc.perform(post("/api/users")
+        mockMvc.perform(post("/api/users").with(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(data)))
                 .andExpect(status().isCreated());
@@ -120,6 +127,7 @@ public class UserControllerTest {
         var data = Instancio.of(modelGenerator.getUserUpdateModel()).create();
 
         mockMvc.perform(put("/api/users/" + testUser.getId())
+                        .with(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(om.writeValueAsString(data)))
                 .andExpect(status().isOk());
@@ -138,7 +146,7 @@ public class UserControllerTest {
     public void testDestroy() throws Exception {
         var usersCount = userRepository.count();
 
-        mockMvc.perform(delete("/api/users/" + testUser.getId()))
+        mockMvc.perform(delete("/api/users/" + testUser.getId()).with(token))
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.count()).isEqualTo(usersCount - 1);

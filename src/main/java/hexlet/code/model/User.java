@@ -16,12 +16,12 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-//import java.util.ArrayList;
-//import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class User implements BaseEntity {
+public class User implements UserDetails, BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,18 +56,18 @@ public class User implements BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updatedAt;
 
-//    @Override
-//    public String getUsername() {
-//        return email;
-//    }
-//
-//    @Override
-//    public String getPassword() {
-//        return passwordDigest;
-//    }
-//
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return new ArrayList<GrantedAuthority>();
-//    }
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordDigest;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return new ArrayList<GrantedAuthority>();
+    }
 }

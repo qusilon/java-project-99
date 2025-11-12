@@ -40,6 +40,7 @@ dependencies {
 	implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 	annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
 
+	testImplementation("org.springframework.security:spring-security-test")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("org.instancio:instancio-junit:5.5.1")

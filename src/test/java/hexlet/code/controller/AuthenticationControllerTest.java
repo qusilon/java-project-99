@@ -1,0 +1,43 @@
+package hexlet.code.controller;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.dto.AuthRequest;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+public class AuthenticationControllerTest {
+
+    public static final String ADMIN_EMAIL = "hexlet@example.com";
+
+    public static final String ADMIN_PASSWORD = "qwerty";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper om;
+
+    @Test
+    public void testCreateAdmin() throws Exception {
+        var authRequest = new AuthRequest();
+
+        authRequest.setUsername(ADMIN_EMAIL);
+        authRequest.setPassword(ADMIN_PASSWORD);
+
+        var request = post("/api/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(authRequest));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+}
