@@ -1,6 +1,5 @@
 package hexlet.code.service;
 
-import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,13 +25,7 @@ public class CustomUserDetailsService implements UserDetailsManager {
 
     @Override
     public void createUser(UserDetails userData) {
-        var user = new User();
-        user.setEmail(userData.getUsername());
-
-        var passwordDigest = passwordEncoder.encode(userData.getPassword());
-        user.setPasswordDigest(passwordDigest);
-
-        userRepository.save(user);
+        throw new UnsupportedOperationException("Unimplemented method 'createUser'");
     }
 
     @Override
