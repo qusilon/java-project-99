@@ -1,7 +1,6 @@
 package hexlet.code.util;
 
-import hexlet.code.dto.user.UserCreateDTO;
-import hexlet.code.dto.user.UserUpdateDTO;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
 import jakarta.annotation.PostConstruct;
 import net.datafaker.Faker;
@@ -9,7 +8,6 @@ import org.instancio.Instancio;
 import org.instancio.Model;
 import lombok.Getter;
 import org.instancio.Select;
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +19,7 @@ public class ModelGenerator {
     private Faker faker;
 
     private Model<User> userModel;
-    private Model<UserCreateDTO> userCreateModel;
-    private Model<UserUpdateDTO> userUpdateModel;
+    private Model<TaskStatus> taskStatusModel;
 
     @PostConstruct
     private void init() {
@@ -36,18 +33,11 @@ public class ModelGenerator {
                 .supply(Select.field(User::getPasswordDigest), () -> faker.internet().password())
                 .toModel();
 
-        userCreateModel = Instancio.of(UserCreateDTO.class)
-                .supply(Select.field(UserCreateDTO::getFirstName), () -> faker.name().firstName())
-                .supply(Select.field(UserCreateDTO::getLastName), () -> faker.name().lastName())
-                .supply(Select.field(UserCreateDTO::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(UserCreateDTO::getPassword), () -> faker.internet().password())
-                .toModel();
-
-        userUpdateModel = Instancio.of(UserUpdateDTO.class)
-                .supply(Select.field(UserUpdateDTO::getFirstName), () -> JsonNullable.of(faker.name().firstName()))
-                .supply(Select.field(UserUpdateDTO::getLastName), () -> JsonNullable.of(faker.name().lastName()))
-                .supply(Select.field(UserUpdateDTO::getEmail), () -> JsonNullable.of(faker.internet().emailAddress()))
-                .supply(Select.field(UserUpdateDTO::getPassword), () -> JsonNullable.of(faker.internet().password()))
+        taskStatusModel = Instancio.of(TaskStatus.class)
+                .ignore(Select.field(TaskStatus::getId))
+                .ignore(Select.field(TaskStatus::getCreatedAt))
+                .supply(Select.field(TaskStatus::getSlug), () -> faker.internet().slug() + faker.internet().slug())
+                .supply(Select.field(TaskStatus::getName), () -> faker.lorem().word() + faker.lorem().word())
                 .toModel();
     }
 }

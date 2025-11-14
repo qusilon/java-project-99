@@ -3,10 +3,12 @@ package hexlet.code.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.user.UserDTO;
+import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
 import hexlet.code.util.ModelGenerator;
 import net.datafaker.Faker;
+import org.assertj.core.api.Assertions;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +19,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +36,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest
@@ -38,6 +47,9 @@ public class UserControllerTest {
 
     static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     public static final String ADMIN_EMAIL = "hexlet@example.com";
+
+    @Autowired
+    private WebApplicationContext wac;
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,6 +66,9 @@ public class UserControllerTest {
     @Autowired
     private ModelGenerator modelGenerator;
 
+    @Autowired
+    private UserMapper userMapper;
+
     private JwtRequestPostProcessor token;
 
     private User testUser;
@@ -61,6 +76,11 @@ public class UserControllerTest {
     @BeforeEach
     public void setUp() {
         token = jwt().jwt(builder -> builder.subject(ADMIN_EMAIL));
+
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).
+                defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
+                .apply(springSecurity()).build();
+
         testUser = Instancio.of(modelGenerator.getUserModel())
                 .create();
         userRepository.save(testUser);
@@ -73,27 +93,28 @@ public class UserControllerTest {
 
     @Test
     public void testIndex() throws Exception {
-        var result = mockMvc.perform(get("/api/users").with(token))
+        var response = mockMvc.perform(get("/api/users").with(token))
                 .andExpect(status().isOk())
-                .andReturn();
+                .andReturn()
+                .getResponse();
 
-        var body = result.getResponse().getContentAsString();
-        var users = om.readValue(body, new TypeReference<List<UserDTO>>() {
+        var body = response.getContentAsString();
+        List<UserDTO> userDTOS = om.readValue(body, new TypeReference<>() {
         });
+        var actual = userDTOS.stream().map(userMapper::map).toList();
         var expected = userRepository.findAll();
 
-        assertThatJson(body).isArray();
-        assertThat(users).hasSize(expected.size());
+        Assertions.assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
     }
 
     @Test
     public void testShow() throws Exception {
-        var result = mockMvc.perform(get("/api/users/" + testUser.getId()).with(token))
+        var response = mockMvc.perform(get("/api/users/" + testUser.getId()).with(token))
                 .andExpect(status().isOk())
-                .andReturn();
+                .andReturn()
+                .getResponse();
 
-        var body = result.getResponse().getContentAsString();
-        var receivedUser = om.readValue(body, UserDTO.class);
+        var body = response.getContentAsString();
 
         assertThatJson(body).isNotNull().and(
                 json -> json.node("id").isEqualTo(testUser.getId()),
@@ -102,22 +123,19 @@ public class UserControllerTest {
                 json -> json.node("email").isEqualTo(testUser.getEmail()),
                 json -> json.node("createdAt").isEqualTo(testUser.getCreatedAt().format(FORMATTER))
         );
-
-        assertThat(receivedUser.getFirstName()).isEqualTo(testUser.getFirstName());
-        assertThat(receivedUser.getEmail()).isEqualTo(testUser.getEmail());
     }
 
     @Test
     public void testCreate() throws Exception {
-        var data = Instancio.of(modelGenerator.getUserCreateModel()).create();
+        var data = Instancio.of(modelGenerator.getUserModel()).create();
 
-        mockMvc.perform(post("/api/users").with(token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsString(data)))
-                .andExpect(status().isCreated());
+        var request = post("/api/users").with(token).contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(data));
+        mockMvc.perform(request).andExpect(status().isCreated());
 
-        var user = userRepository.findByEmail(data.getEmail()).orElseThrow();
+        var user = userRepository.findByEmail(data.getEmail()).orElse(null);
 
+        assertNotNull(user);
         assertThat(user.getFirstName()).isEqualTo(data.getFirstName());
         assertThat(user.getLastName()).isEqualTo(data.getLastName());
         assertThat(user.getEmail()).isEqualTo(data.getEmail());
@@ -125,22 +143,22 @@ public class UserControllerTest {
 
     @Test
     public void testUpdate() throws Exception {
-        var data = Instancio.of(modelGenerator.getUserUpdateModel()).create();
+        var userPassword = testUser.getPassword();
+        var data = new HashMap<>();
+        data.put("firstName", "Mike");
+        data.put("email", "example@mail.ru");
+        data.put("password", "12345");
 
-        mockMvc.perform(put("/api/users/" + testUser.getId())
-                        .with(token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(om.writeValueAsString(data)))
-                .andExpect(status().isOk());
+        var request = put("/api/users/" + testUser.getId())
+                .with(token).contentType(MediaType.APPLICATION_JSON)
+                .content(om.writeValueAsString(data));
+        mockMvc.perform(request).andExpect(status().isOk());
 
-        var updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
+        var user = userRepository.findById(testUser.getId()).orElseThrow();
 
-        if (data.getFirstName().isPresent()) {
-            assertThat(updatedUser.getFirstName()).isEqualTo(data.getFirstName().get());
-        }
-        if (data.getEmail().isPresent()) {
-            assertThat(updatedUser.getEmail()).isEqualTo(data.getEmail().get());
-        }
+        assertThat(user.getFirstName()).isEqualTo(("Mike"));
+        assertThat(user.getEmail()).isEqualTo(("example@mail.ru"));
+        assertThat(userPassword).isNotEqualTo(user.getPassword());
     }
 
     @Test
