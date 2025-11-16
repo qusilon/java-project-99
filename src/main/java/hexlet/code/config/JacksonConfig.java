@@ -22,7 +22,6 @@ public class JacksonConfig {
         builder.serializationInclusion(JsonInclude.Include.NON_NULL)
                 .modules(new JavaTimeModule(), new JsonNullableModule())
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .simpleDateFormat("yyyy-MM-dd HH:mm")
                 .deserializerByType(LocalDateTime.class,
                         new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
                 .serializerByType(LocalDateTime.class,
