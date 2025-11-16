@@ -5,8 +5,11 @@ import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
+import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
+import hexlet.code.specification.TaskSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +23,23 @@ public class TaskService {
     @Autowired
     private TaskMapper taskMapper;
 
-    public List<TaskDTO> getAllTasks() {
-        return taskRepository.findAll()
+    @Autowired
+    private TaskSpecification taskSpecification;
+
+    public List<TaskDTO> getAllTasks(
+            String titleCont,
+            Long assigneeId,
+            String status,
+            Long labelId
+    ) {
+        Specification<Task> spec = taskSpecification.build(
+                titleCont,
+                assigneeId,
+                status,
+                labelId
+        );
+
+        return taskRepository.findAll(spec)
                 .stream()
                 .map(taskMapper::map)
                 .toList();

@@ -201,4 +201,39 @@ public class TaskControllerTest {
         assertThat(taskRepository.count()).isEqualTo(taskCount - 1);
         assertThat(taskRepository.findById(testTask.getId())).isEmpty();
     }
+
+    @Test
+    public void testFilter() throws Exception {
+
+        Task matching = Instancio.of(modelGenerator.getTaskModel()).create();
+        matching.setName("Important task");
+        matching.setAssignee(testUser);
+        matching.setTaskStatus(testTaskStatus);
+        taskRepository.save(matching);
+
+
+        Task notMatching = Instancio.of(modelGenerator.getTaskModel()).create();
+        notMatching.setName("Another one");
+        notMatching.setAssignee(null);
+        notMatching.setTaskStatus(testTaskStatus);
+        taskRepository.save(notMatching);
+
+        var response = mockMvc.perform(
+                        get("/api/tasks?titleCont=important&assigneeId=" + testUser.getId())
+                                .with(token)
+                )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        List<TaskDTO> result = om.readValue(response, new TypeReference<>() {
+        });
+
+        assertThat(result)
+                .hasSize(1)
+                .allMatch(dto ->
+                        dto.getName().equals("Important task") && dto.getAssigneeId().equals(testUser.getId())
+                );
+    }
 }
