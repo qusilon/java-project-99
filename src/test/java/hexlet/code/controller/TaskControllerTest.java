@@ -105,7 +105,6 @@ public class TaskControllerTest {
         userRepository.save(testUser);
         taskStatusRepository.save(testTaskStatus);
 
-        testLabel.getTasks().add(testTask);
         testTask.getLabels().add(testLabel);
         testTask.setAssignee(testUser);
         testTask.setTaskStatus(testTaskStatus);

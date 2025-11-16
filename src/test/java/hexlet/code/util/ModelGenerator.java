@@ -13,9 +13,6 @@ import org.instancio.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-
 @Getter
 @Component
 public class ModelGenerator {
@@ -52,17 +49,16 @@ public class ModelGenerator {
                 .ignore(Select.field(Task::getCreatedAt))
                 .ignore(Select.field(Task::getAssignee))
                 .ignore(Select.field(Task::getTaskStatus))
+                .ignore(Select.field((Task::getLabels)))
                 .supply(Select.field(Task::getName), () -> faker.lorem().word() + faker.lorem().sentence())
                 .supply(Select.field(Task::getDescription), () -> faker.lorem().sentence())
                 .supply(Select.field(Task::getIndex), () -> faker.number().randomNumber())
-                .supply(Select.field(Task::getLabels), () -> new HashSet<Label>())
                 .toModel();
 
         labelModel = Instancio.of(Label.class)
                 .ignore(Select.field(Label::getId))
                 .ignore(Select.field(Label::getCreatedAt))
                 .supply(Select.field(Label::getName), () -> faker.lorem().word() + faker.lorem().sentence())
-                .supply(Select.field(Label::getTasks), () -> new ArrayList<Task>())
                 .toModel();
     }
 
