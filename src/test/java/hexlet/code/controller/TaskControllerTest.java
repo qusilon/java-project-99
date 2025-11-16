@@ -146,11 +146,11 @@ public class TaskControllerTest {
 
         assertThatJson(body).isNotNull().and(
                 json -> json.node("id").isEqualTo(testTask.getId()),
-                json -> json.node("name").isEqualTo(testTask.getName()),
+                json -> json.node("title").isEqualTo(testTask.getName()),
                 json -> json.node("index").isEqualTo(testTask.getIndex()),
-                json -> json.node("description").isEqualTo(testTask.getDescription()),
+                json -> json.node("content").isEqualTo(testTask.getDescription()),
                 json -> json.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
-                json -> json.node("assigneeId").isEqualTo(testTask.getAssignee().getId())
+                json -> json.node("assignee_id").isEqualTo(testTask.getAssignee().getId())
         );
     }
 
@@ -175,8 +175,8 @@ public class TaskControllerTest {
     public void testUpdate() throws Exception {
         taskRepository.save(testTask);
         var data = new HashMap<>();
-        data.put("name", "newName");
-        data.put("description", "newDescription");
+        data.put("title", "newName");
+        data.put("content", "newDescription");
 
         var request = put("/api/tasks/" + testTask.getId())
                 .with(token).contentType(MediaType.APPLICATION_JSON)
@@ -232,7 +232,7 @@ public class TaskControllerTest {
         assertThat(result)
                 .hasSize(1)
                 .allMatch(dto ->
-                        dto.getName().equals("Important task") && dto.getAssigneeId().equals(testUser.getId())
+                        dto.getTitle().equals("Important task") && dto.getAssigneeId().equals(testUser.getId())
                 );
     }
 }

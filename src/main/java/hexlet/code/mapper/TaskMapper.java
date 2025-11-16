@@ -40,22 +40,30 @@ public abstract class TaskMapper {
 
     @Mapping(source = "assignee.id", target = "assigneeId")
     @Mapping(source = "taskStatus.slug", target = "status")
+    @Mapping(source = "name", target = "title")
+    @Mapping(source = "description", target = "content")
     @Mapping(source = "labels", target = "taskLabelIds")
     public abstract TaskDTO map(Task model);
 
     @Mapping(target = "assignee.id", source = "assigneeId")
     @Mapping(target = "taskStatus.slug", source = "status")
+    @Mapping(target = "name", source = "title")
+    @Mapping(target = "description", source = "content")
     @Mapping(target = "labels", source = "taskLabelIds")
     public abstract Task map(TaskDTO dto);
 
 
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "taskStatus", source = "status")
+    @Mapping(target = "name", source = "title")
+    @Mapping(target = "description", source = "content")
     @Mapping(target = "labels", source = "taskLabelIds")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(target = "assignee", source = "assigneeId")
     @Mapping(target = "taskStatus", source = "status")
+    @Mapping(target = "name", source = "title")
+    @Mapping(target = "description", source = "content")
     @Mapping(target = "labels", source = "taskLabelIds")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task model);
 
@@ -72,8 +80,8 @@ public abstract class TaskMapper {
 
     }
 
-    public Set<Label> longToLabel(Set<Long> labelIds) {
-        return new HashSet<>(labelRepository.findAllById(labelIds));
+    public Set<Label> longToLabel(Set<Long> taskLabelIds) {
+        return new HashSet<>(labelRepository.findAllById(taskLabelIds));
     }
 
 }
