@@ -3,7 +3,7 @@ package hexlet.code.dto.task;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -22,7 +22,7 @@ public class TaskDTO {
 
     private Long assigneeId;
 
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     private List<Long> taskLabelIds;
 }
