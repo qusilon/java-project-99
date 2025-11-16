@@ -3,7 +3,7 @@ package hexlet.code.dto.taskStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -15,6 +15,6 @@ public class TaskStatusDTO {
 
     private String slug;
 
-    private Date createdAt;
+    private LocalDate createdAt;
 
 }
