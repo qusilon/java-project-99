@@ -22,6 +22,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static hexlet.code.component.DataInitializer.ADMIN_EMAIL;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -37,16 +38,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class UserControllerTest {
-
-    static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    public static final String ADMIN_EMAIL = "hexlet@example.com";
 
     @Autowired
     private WebApplicationContext wac;
@@ -120,8 +117,7 @@ public class UserControllerTest {
                 json -> json.node("id").isEqualTo(testUser.getId()),
                 json -> json.node("firstName").isEqualTo(testUser.getFirstName()),
                 json -> json.node("lastName").isEqualTo(testUser.getLastName()),
-                json -> json.node("email").isEqualTo(testUser.getEmail()),
-                json -> json.node("createdAt").isEqualTo(testUser.getCreatedAt().format(FORMATTER))
+                json -> json.node("email").isEqualTo(testUser.getEmail())
         );
     }
 

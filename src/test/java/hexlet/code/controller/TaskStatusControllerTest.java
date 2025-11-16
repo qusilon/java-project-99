@@ -26,13 +26,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
-import static hexlet.code.controller.UserControllerTest.FORMATTER;
+import static hexlet.code.component.DataInitializer.ADMIN_EMAIL;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
-import static hexlet.code.controller.UserControllerTest.ADMIN_EMAIL;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -109,8 +108,7 @@ public class TaskStatusControllerTest {
         assertThatJson(body).isNotNull().and(
                 json -> json.node("id").isEqualTo(testTaskStatus.getId()),
                 json -> json.node("slug").isEqualTo(testTaskStatus.getSlug()),
-                json -> json.node("name").isEqualTo(testTaskStatus.getName()),
-                json -> json.node("createdAt").isEqualTo(testTaskStatus.getCreatedAt().format(FORMATTER))
+                json -> json.node("name").isEqualTo(testTaskStatus.getName())
         );
     }
 

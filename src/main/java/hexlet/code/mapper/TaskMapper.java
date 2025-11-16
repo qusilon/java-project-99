@@ -4,9 +4,11 @@ import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.exception.ResourceNotFoundException;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
 import org.mapstruct.Mapper;
@@ -17,6 +19,10 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Mapper(
         uses = {JsonNullableMapper.class, ReferenceMapper.class},
@@ -32,21 +38,28 @@ public abstract class TaskMapper {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private LabelRepository labelRepository;
+
     @Mapping(source = "taskStatus.slug", target = "status")
     @Mapping(source = "assignee.id", target = "assigneeId")
+    @Mapping(source = "labels", target = "taskLabelIds", qualifiedByName = "labelsToIds")
     public abstract TaskDTO map(Task task);
 
     @Mapping(source = "status", target = "taskStatus", qualifiedByName = "statusToEntity")
     @Mapping(source = "assigneeId", target = "assignee", qualifiedByName = "userToEntity")
+    @Mapping(source = "taskLabelIds", target = "labels", qualifiedByName = "idsToLabels")
     public abstract Task map(TaskDTO dto);
 
 
     @Mapping(source = "status", target = "taskStatus", qualifiedByName = "statusToEntity")
     @Mapping(source = "assigneeId", target = "assignee", qualifiedByName = "userToEntity")
+    @Mapping(source = "taskLabelIds", target = "labels", qualifiedByName = "idsToLabels")
     public abstract Task map(TaskCreateDTO dto);
 
     @Mapping(source = "status", target = "taskStatus", qualifiedByName = "statusToEntity")
     @Mapping(source = "assigneeId", target = "assignee", qualifiedByName = "userToEntity")
+    @Mapping(source = "taskLabelIds", target = "labels", qualifiedByName = "idsToLabelsNullable")
     public abstract void update(TaskUpdateDTO dto, @MappingTarget Task task);
 
     @Named("statusToEntity")
@@ -59,5 +72,31 @@ public abstract class TaskMapper {
     public User userToEntity(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    @Named("labelsToIds")
+    public List<Long> labelsToIds(Set<Label> labels) {
+        if (labels == null) {
+            return List.of();
+        }
+        return labels.stream()
+                .map(Label::getId)
+                .toList();
+    }
+
+    @Named("idsToLabels")
+    public Set<Label> idsToLabels(List<Long> ids) {
+        if (ids == null) {
+            return Set.of();
+        }
+        return new HashSet<>(labelRepository.findByIdIn(ids));
+    }
+
+    @Named("idsToLabelsNullable")
+    public Set<Label> idsToLabelsNullable(List<Long> ids) {
+        if (ids == null) {
+            return null;
+        }
+        return new HashSet<>(labelRepository.findByIdIn(ids));
     }
 }

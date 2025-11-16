@@ -9,16 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
+import static hexlet.code.component.DataInitializer.ADMIN_EMAIL;
+import static hexlet.code.component.DataInitializer.ADMIN_PASSWORD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AuthenticationControllerTest {
-
-    public static final String ADMIN_EMAIL = "hexlet@example.com";
-
-    public static final String ADMIN_PASSWORD = "qwerty";
 
     @Autowired
     private MockMvc mockMvc;
