@@ -2,7 +2,7 @@ report:
 	./gradlew jacocoTestReport
 
 build:
-	./gradlew clean build
+	./gradlew build
 
 test:
 	./gradlew test
@@ -15,3 +15,6 @@ clean:
 
 setup:
 	./gradlew wrapper --gradle-version 8.10
+
+sonar:
+	./gradlew sonar --info
