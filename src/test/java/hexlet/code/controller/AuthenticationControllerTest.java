@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
 
-import static hexlet.code.component.DataInitializer.ADMIN_EMAIL;
-import static hexlet.code.component.DataInitializer.ADMIN_PASSWORD;
+import static hexlet.code.config.DataInitializer.ADMIN_EMAIL;
+import static hexlet.code.config.DataInitializer.ADMIN_PASSWORD;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

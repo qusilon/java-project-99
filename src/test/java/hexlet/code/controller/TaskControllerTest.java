@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
-import static hexlet.code.component.DataInitializer.ADMIN_EMAIL;
+import static hexlet.code.config.DataInitializer.ADMIN_EMAIL;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

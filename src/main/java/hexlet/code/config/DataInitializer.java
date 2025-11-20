@@ -1,4 +1,4 @@
-package hexlet.code.component;
+package hexlet.code.config;
 
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.model.Label;
